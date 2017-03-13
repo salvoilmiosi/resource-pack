@@ -78,15 +78,13 @@ SDL_RWops *getResourceRW(const char *RES_ID) {
 std::string loadStringFromResource(const char *RES_ID) {
 	try {
 		resource &res = resFiles.at(RES_ID);
-		char *data = new char[res.size];
+		std::string data(res.size, '\0');
 
 		ifstream ifs(res.filename, ios::binary);
 		ifs.seekg(res.ptr);
-		ifs.read(data, res.size);
+		ifs.read(&data[0], res.size);
 
-		std::string ret = data;
-		delete []data;
-		return ret;
+		return data;
 	} catch (std::out_of_range) {
 		return "";
 	}
