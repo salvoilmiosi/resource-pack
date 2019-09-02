@@ -10,7 +10,7 @@ static const int ID_MAXSIZE = 32;
 struct resource {
 	size_t size = 0;
 	size_t ptr = 0;
-	const char *filename;
+	string filename;
 };
 
 static map<string, resource> resFiles;
@@ -43,7 +43,6 @@ bool openResourceFile(const char *filename) {
 	char res_id[ID_MAXSIZE];
 
 	while (numRes > 0) {
-		memset(&res, 0, sizeof(res));
 		memset(res_id, 0, sizeof(res_id));
 
 		ifs.read(res_id, ID_MAXSIZE);
@@ -70,7 +69,7 @@ SDL_RWops *getResourceRW(const char *RES_ID) {
 		ifs.read(data, res.size);
 
 		return SDL_RWFromConstMem(data, res.size);
-	} catch (std::out_of_range) {
+	} catch (std::out_of_range &) {
 		return nullptr;
 	}
 }
@@ -85,7 +84,7 @@ std::string loadStringFromResource(const char *RES_ID) {
 		ifs.read(&data[0], res.size);
 
 		return data;
-	} catch (std::out_of_range) {
+	} catch (std::out_of_range &) {
 		return "";
 	}
 }
