@@ -3,19 +3,19 @@
 #include <map>
 #include <fstream>
 
-using namespace std;
+
 
 static const int ID_MAXSIZE = 32;
 
 struct resource {
 	size_t size = 0;
 	size_t ptr = 0;
-	string filename;
+	std::string filename;
 };
 
-static map<string, resource> resFiles;
+static std::map<std::string, resource> resFiles;
 
-static unsigned int readInt(ifstream &ifs) {
+static unsigned int readInt(std::ifstream &ifs) {
 	char data[4];
 	ifs.read(data, 4);
 	unsigned int num =
@@ -27,7 +27,7 @@ static unsigned int readInt(ifstream &ifs) {
 }
 
 bool openResourceFile(const char *filename) {
-	ifstream ifs(filename, ios::binary);
+	std::ifstream ifs(filename, std::ios::binary);
 
 	if (ifs.fail()) {
 		return false;
@@ -64,7 +64,7 @@ SDL_RWops *getResourceRW(const char *RES_ID) {
 		resource &res = resFiles.at(RES_ID);
 		char *data = new char[res.size];
 
-		ifstream ifs(res.filename, ios::binary);
+		std::ifstream ifs(res.filename, std::ios::binary);
 		ifs.seekg(res.ptr);
 		ifs.read(data, res.size);
 
@@ -79,7 +79,7 @@ std::string loadStringFromResource(const char *RES_ID) {
 		resource &res = resFiles.at(RES_ID);
 		std::string data(res.size, '\0');
 
-		ifstream ifs(res.filename, ios::binary);
+		std::ifstream ifs(res.filename, std::ios::binary);
 		ifs.seekg(res.ptr);
 		ifs.read(&data[0], res.size);
 

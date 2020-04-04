@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #endif
 
-using namespace std;
+
 
 static const int ID_MAXSIZE = 32;
 
@@ -20,8 +20,8 @@ struct resource {
 	char res_id[ID_MAXSIZE];
 };
 
-vector<resource> resFiles;
-ifstream resourceIfs;
+std::vector<resource> resFiles;
+std::ifstream resourceIfs;
 
 void removeExtension(char *filename) {
 	char *c = filename + strlen(filename) - 1;
@@ -34,7 +34,7 @@ void removeExtension(char *filename) {
 	}
 }
 
-unsigned int readInt(ifstream &ifs) {
+unsigned int readInt(std::ifstream &ifs) {
 	char data[4];
 	ifs.read(data, 4);
 	unsigned int num =
@@ -46,7 +46,7 @@ unsigned int readInt(ifstream &ifs) {
 }
 
 bool openResourceFile(const char *filename) {
-	resourceIfs.open(filename, ios::binary);
+	resourceIfs.open(filename, std::ios::binary);
 
 	if (resourceIfs.fail()) {
 		return false;
@@ -73,12 +73,12 @@ bool saveFiles(const char *output_dir) {
 		strncpy(output, output_dir, FILENAME_MAX);
 		strncat(output, res.res_id, FILENAME_MAX);
 		
-		vector<char> data(res.size);
+		std::vector<char> data(res.size);
 		
 		resourceIfs.seekg(res.ptr);
 		resourceIfs.read(data.data(), res.size);
 		
-		ofstream ofs(output, ios::binary);
+		std::ofstream ofs(output, std::ios::binary);
 		ofs.write(data.data(), data.size());
 		
 		if (ofs.fail()) {

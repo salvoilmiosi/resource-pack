@@ -9,25 +9,25 @@
 #include <locale>
 #include <cstring>
 
-using namespace std;
+
 
 const size_t ID_MAXSIZE = 32;
 
 struct fileData {
 	char res_id[ID_MAXSIZE];
 	char filename[FILENAME_MAX];
-	vector<char> data;
+	std::vector<char> data;
 };
 
-void trim(string &s) {
+void trim(std::string &s) {
 	s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
 	s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
 }
 
-bool parseResource(const char *filename, vector<fileData> &files) {
-	ifstream ifs(filename);
+bool parseResource(const char *filename, std::vector<fileData> &files) {
+	std::ifstream ifs(filename);
 
-	string resource_file_dir = filename;
+	std::string resource_file_dir = filename;
 	size_t slash_pos = resource_file_dir.find_last_of("/\\");
 	resource_file_dir = resource_file_dir.substr(0, slash_pos);
 
@@ -40,7 +40,7 @@ bool parseResource(const char *filename, vector<fileData> &files) {
 		return false;
 	}
 
-	string line;
+	std::string line;
 	fileData file;
 
 	int line_num = 0;
@@ -125,9 +125,9 @@ bool parseResource(const char *filename, vector<fileData> &files) {
 	return true;
 }
 
-bool openResources(vector<fileData> &files) {
+bool openResources(std::vector<fileData> &files) {
 	for (fileData &file : files) {
-		ifstream ifs(file.filename, ios::binary | ios::ate);
+		std::ifstream ifs(file.filename, std::ios::binary | std::ios::ate);
 		if (ifs.fail()) {
 			cerr << "Could not open file \"" << file.filename << "\"\n";
 			return false;
@@ -135,7 +135,7 @@ bool openResources(vector<fileData> &files) {
 
 		size_t size = (size_t)ifs.tellg();
 		file.data.resize(size);
-		ifs.seekg(ios::beg);
+		ifs.seekg(std::ios::beg);
 
 		if (!ifs.read(file.data.data(), size)) {
 			cerr << "Could not open file \"" << file.filename << "\"\n";
@@ -146,7 +146,7 @@ bool openResources(vector<fileData> &files) {
 	return true;
 }
 
-void writeInt(ofstream &ofs, const int num) {
+void writeInt(std::ofstream &ofs, const int num) {
 	char str[4];
 	str[0] = (num & 0xff000000) >> (8 * 3);
 	str[1] = (num & 0x00ff0000) >> (8 * 2);
@@ -156,8 +156,8 @@ void writeInt(ofstream &ofs, const int num) {
 	ofs.write(str, 4);
 }
 
-bool saveResources(const char *filename, vector<fileData> &files) {
-	ofstream ofs(filename, ios::binary);
+bool saveResources(const char *filename, std::vector<fileData> &files) {
+	std::ofstream ofs(filename, std::ios::binary);
 
 	if (ofs.fail()) return false;
 
@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
 		changeExtension(output, "dat");
 	}
 
-	vector<fileData> files;
+	std::vector<fileData> files;
 
 	if (!parseResource(input, files)) {
 		cerr << "Could not parse input file\n";
