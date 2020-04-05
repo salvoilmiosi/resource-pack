@@ -1,4 +1,4 @@
-CC = clang++
+CXX = clang++
 AR = ar
 CFLAGS = -g -Wall --std=c++11
 LDFLAGS = 
@@ -11,6 +11,11 @@ PACK_BIN = $(BIN_DIR)/resource_pack
 UNPACK_BIN = $(BIN_DIR)/resource_unpack
 LOAD_BIN = $(BIN_DIR)/libresource_load.a
 
+ifeq ($(OS),Windows_NT)
+	PACK_BIN := $(PACK_BIN).exe
+	UNPACK_BIN := $(UNPACK_BIN).exe
+endif
+
 $(shell mkdir -p $(BIN_DIR) >/dev/null)
 $(shell mkdir -p $(OBJ_DIR) >/dev/null)
 
@@ -21,10 +26,10 @@ clean:
 	rm -rf obj
 
 $(PACK_BIN): src/resource_pack.cpp
-	$(CC) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
+	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
 
 $(UNPACK_BIN): src/resource_unpack.cpp
-	$(CC) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
+	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
 
 $(LOAD_BIN): $(OBJ_DIR)/resource_load.o
 	$(AR) rcs $@ $<
