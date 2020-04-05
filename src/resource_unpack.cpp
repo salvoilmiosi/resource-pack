@@ -82,7 +82,7 @@ bool saveFiles(const char *output_dir) {
 		ofs.write(data.data(), data.size());
 		
 		if (ofs.fail()) {
-			cerr << "Could not save file \"" << output << "\"\n";
+			std::cerr << "Could not save file \"" << output << "\"\n";
 			return false;
 		}
 	}
@@ -102,7 +102,7 @@ void create_dir(const char *dir_name) {
 }
 int main(int argc, char **argv) {
 	if (argc < 2) {
-		cerr << "Usage: " << argv[0] << " input [output_dir]\n";
+		std::cerr << "Usage: " << argv[0] << " input [output_dir]\n";
 		return -1;
 	}
 	
@@ -133,16 +133,16 @@ int main(int argc, char **argv) {
 	}
 	
 	if (!openResourceFile(input)) {
-		cerr << "Could not open resource file \"" << input << "\"\n";
+		std::cerr << "Could not open resource file \"" << input << "\"\n";
 		return -2;
 	}
 	
 	if (!saveFiles(output)) {
-		cerr << "Error. Terminating.\n";
+		std::cerr << "Error. Terminating.\n";
 		return -3;
 	}
 	
-	cout << "Operation completed succesfully.\n";
+	std::cout << "Operation completed succesfully.\n";
 	return 0;
 }
 

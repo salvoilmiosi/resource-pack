@@ -20,8 +20,8 @@ struct fileData {
 };
 
 void trim(std::string &s) {
-	s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
-	s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
+	s.erase(s.begin(), find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(isspace))));
+	s.erase(find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(isspace))).base(), s.end());
 }
 
 bool parseResource(const char *filename, std::vector<fileData> &files) {
@@ -36,7 +36,7 @@ bool parseResource(const char *filename, std::vector<fileData> &files) {
 	}
 
 	if (ifs.fail()) {
-		cerr << "Could not open input file \"" << filename << "\"\n";
+		std::cerr << "Could not open input file \"" << filename << "\"\n";
 		return false;
 	}
 
@@ -115,7 +115,7 @@ bool parseResource(const char *filename, std::vector<fileData> &files) {
 		}
 
 		if (file.res_id[0] == '\0' || file.filename[0] == '\0') {
-			cerr << "Syntax error at line #" << line_num << ":\n" << line << "\n";
+			std::cerr << "Syntax error at line #" << line_num << ":\n" << line << "\n";
 			return false;
 		}
 
@@ -129,7 +129,7 @@ bool openResources(std::vector<fileData> &files) {
 	for (fileData &file : files) {
 		std::ifstream ifs(file.filename, std::ios::binary | std::ios::ate);
 		if (ifs.fail()) {
-			cerr << "Could not open file \"" << file.filename << "\"\n";
+			std::cerr << "Could not open file \"" << file.filename << "\"\n";
 			return false;
 		}
 
@@ -138,7 +138,7 @@ bool openResources(std::vector<fileData> &files) {
 		ifs.seekg(std::ios::beg);
 
 		if (!ifs.read(file.data.data(), size)) {
-			cerr << "Could not open file \"" << file.filename << "\"\n";
+			std::cerr << "Could not open file \"" << file.filename << "\"\n";
 			return false;
 		}
 	}
@@ -205,7 +205,7 @@ void changeExtension(char *filename, const char *ext) {
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
-		cout << "Usage: " << argv[0] << " input [output]\n";
+		std::cout << "Usage: " << argv[0] << " input [output]\n";
 		return -1;
 	}
 
@@ -222,20 +222,20 @@ int main(int argc, char **argv) {
 	std::vector<fileData> files;
 
 	if (!parseResource(input, files)) {
-		cerr << "Could not parse input file\n";
+		std::cerr << "Could not parse input file\n";
 		return -2;
 	}
 
 	if (!openResources(files)) {
-		cerr << "Could not open files\n";
+		std::cerr << "Could not open files\n";
 		return -3;
 	}
 
 	if (!saveResources(output, files)) {
-		cerr << "Could not save resource file\n";
+		std::cerr << "Could not save resource file\n";
 		return -4;
 	}
 	
-	cout << "Completed operation. Saved resource file at \"" << output << "\"\n";
+	std::cout << "Completed operation. Saved resource file at \"" << output << "\"\n";
 	return 0;
 }
