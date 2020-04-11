@@ -35,4 +35,4 @@ $(LOAD_BIN): $(OBJ_DIR)/resource_load.o
 	$(AR) rcs $@ $<
 
 $(OBJ_DIR)/resource_load.o: src/resource_load.cpp include/resource_load.h
-	$(CC) -c $(CFLAGS) -I$(INCLUDE) -o $@ src/resource_load.cpp
+	$(CXX) -c $(CFLAGS) -I$(INCLUDE) -o $@ src/resource_load.cpp
