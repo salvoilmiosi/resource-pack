@@ -236,6 +236,5 @@ int main(int argc, char **argv) {
 		return -4;
 	}
 	
-	std::cout << "Completed operation. Saved resource file at \"" << output << "\"\n";
 	return 0;
 }
