@@ -60,8 +60,9 @@ bool openResourceFile(const char *filename) {
 }
 
 SDL_RWops *getResourceRW(const char *RES_ID) {
-	try {
-		resource &res = resFiles.at(RES_ID);
+	auto it = resFiles.find(RES_ID);
+	if (it != resFiles.end()) {
+		resource &res = it->second;
 		char *data = new char[res.size];
 
 		std::ifstream ifs(res.filename, std::ios::binary);
@@ -69,14 +70,15 @@ SDL_RWops *getResourceRW(const char *RES_ID) {
 		ifs.read(data, res.size);
 
 		return SDL_RWFromConstMem(data, res.size);
-	} catch (std::out_of_range &) {
+	} else {
 		return nullptr;
 	}
 }
 
 std::string loadStringFromResource(const char *RES_ID) {
-	try {
-		resource &res = resFiles.at(RES_ID);
+	auto it = resFiles.find(RES_ID);
+	if (it != resFiles.end()) {
+		resource &res = it->second;
 		std::string data(res.size, '\0');
 
 		std::ifstream ifs(res.filename, std::ios::binary);
@@ -84,7 +86,7 @@ std::string loadStringFromResource(const char *RES_ID) {
 		ifs.read(&data[0], res.size);
 
 		return data;
-	} catch (std::out_of_range &) {
+	} else {
 		return "";
 	}
 }
