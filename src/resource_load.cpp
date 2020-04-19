@@ -1,6 +1,6 @@
 #include "resource_load.h"
 
-#include <map>
+#include <unordered_map>
 #include <fstream>
 
 
@@ -13,7 +13,7 @@ struct resource {
 	std::string filename;
 };
 
-static std::map<std::string, resource> resFiles;
+static std::unordered_map<std::string, resource> resFiles;
 
 static unsigned int readInt(std::ifstream &ifs) {
 	char data[4];
