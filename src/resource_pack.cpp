@@ -158,7 +158,7 @@ bool openResources(std::vector<fileData> &files) {
 		file.data = (char *) malloc(file.size);
 
 		// compress the data
-		int status = BZ2_bzBuffToBuffCompress(file.data, (unsigned int *) &file.size, buf, file.size, 9, 1, 0);
+		int status = BZ2_bzBuffToBuffCompress(file.data, (unsigned int *) &file.size, buf, file.uncompressed_size, 9, 1, 0);
 
 		if (status != BZ_OK) {
 			fprintf(stderr, "Failed to compress data: error %i\n", status);
