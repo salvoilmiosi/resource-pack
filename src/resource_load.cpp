@@ -54,8 +54,8 @@ bool openResourceFile(const char *filename) {
 
 		ifs.read(res_id, ID_MAXSIZE);
 
-		res.uncompressed_size = readInt(ifs);
 		res.size = readInt(ifs);
+		res.uncompressed_size = readInt(ifs);
 		res.ptr = readInt(ifs);
 		res.filename = filename;
 

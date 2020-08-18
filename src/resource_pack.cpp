@@ -187,7 +187,7 @@ bool saveResources(const char *filename, std::vector<fileData> &files) {
 
 	if (ofs.fail()) return false;
 
-	const int tableSize = ID_MAXSIZE + sizeof(int) * 2;
+	const int tableSize = ID_MAXSIZE + sizeof(int) * 3;
 	int ptr = tableSize * files.size() + sizeof(int) * 2;
 
 	writeInt(ofs, 0x255435f4);
