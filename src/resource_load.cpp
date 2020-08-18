@@ -2,15 +2,22 @@
 
 #include <unordered_map>
 #include <fstream>
-
+#include <bzlib.h>
 
 
 static const int ID_MAXSIZE = 32;
 
 struct resource {
+	size_t uncompressed_size = 0;
 	size_t size = 0;
 	size_t ptr = 0;
 	std::string filename;
+	char *data = nullptr;
+
+	~resource() {
+		if (data) free(data);
+		data = nullptr;
+	}
 };
 
 static std::unordered_map<std::string, resource> resFiles;
@@ -47,6 +54,7 @@ bool openResourceFile(const char *filename) {
 
 		ifs.read(res_id, ID_MAXSIZE);
 
+		res.uncompressed_size = readInt(ifs);
 		res.size = readInt(ifs);
 		res.ptr = readInt(ifs);
 		res.filename = filename;
@@ -59,34 +67,41 @@ bool openResourceFile(const char *filename) {
 	return true;
 }
 
-SDL_RWops *getResourceRW(const char *RES_ID) {
+static resource *getUncompressedData(const char *RES_ID) {
 	auto it = resFiles.find(RES_ID);
-	if (it != resFiles.end()) {
-		resource &res = it->second;
-		char *data = new char[res.size];
+	if (it == resFiles.end()) return nullptr;
 
-		std::ifstream ifs(res.filename, std::ios::binary);
-		ifs.seekg(res.ptr);
-		ifs.read(data, res.size);
+	resource &res = it->second;
+	if (res.data) return &res;
 
-		return SDL_RWFromConstMem(data, res.size);
-	} else {
+	char *compressed = (char *)malloc (res.size);
+
+	std::ifstream ifs(res.filename, std::ios::binary);
+	ifs.seekg(res.ptr);
+	ifs.read(compressed, res.size);
+
+	unsigned int uncompressed_size = res.uncompressed_size;
+	res.data = (char *) malloc(uncompressed_size);
+	int status = BZ2_bzBuffToBuffDecompress(res.data, &uncompressed_size, compressed, res.size, 0, 0);
+
+	free(compressed);
+	if (status != BZ_OK) {
+		free(res.data);
+		res.data = nullptr;
 		return nullptr;
 	}
+
+	return &res;
+}
+
+SDL_RWops *getResourceRW(const char *RES_ID) {
+	resource *res = getUncompressedData(RES_ID);
+	if (!res) return nullptr;
+	return SDL_RWFromConstMem(res->data, res->uncompressed_size);
 }
 
 std::string loadStringFromResource(const char *RES_ID) {
-	auto it = resFiles.find(RES_ID);
-	if (it != resFiles.end()) {
-		resource &res = it->second;
-		std::string data(res.size, '\0');
-
-		std::ifstream ifs(res.filename, std::ios::binary);
-		ifs.seekg(res.ptr);
-		ifs.read(&data[0], res.size);
-
-		return data;
-	} else {
-		return "";
-	}
+	resource *res = getUncompressedData(RES_ID);
+	if (!res) return "";
+	return std::string(res->data, res->uncompressed_size);
 }

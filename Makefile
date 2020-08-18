@@ -1,6 +1,6 @@
-CXX = clang++
+CXX = g++
 AR = ar
-CFLAGS = -g -Wall --std=c++11
+CFLAGS = -g -Wall --std=c++17
 LDFLAGS = 
 INCLUDE = include
 
@@ -26,10 +26,10 @@ clean:
 	rm -rf obj
 
 $(PACK_BIN): src/resource_pack.cpp
-	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
+	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $< -lbz2
 
 $(UNPACK_BIN): src/resource_unpack.cpp
-	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $<
+	$(CXX) $(CFLAGS) $(LDFLAGS) -I$(INCLUDE) -o $@ $< -lbz2
 
 $(LOAD_BIN): $(OBJ_DIR)/resource_load.o
 	$(AR) rcs $@ $<

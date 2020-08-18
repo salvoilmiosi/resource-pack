@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <string>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -90,16 +92,6 @@ bool saveFiles(const char *output_dir) {
 	return true;
 }
 
-void create_dir(const char *dir_name) {
-#ifdef _WIN32
-	CreateDirectory(dir_name, nullptr);
-#else
-	struct stat st = {0};
-	if (stat(dir_name, &st) == -1) {
-		mkdir(dir_name, 0700);
-	}
-#endif
-}
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " input [output_dir]\n";
@@ -129,7 +121,7 @@ int main(int argc, char **argv) {
 	if (output[0] == '\\' || output[0] == '/') {
 		memset(output, 0, sizeof(output));
 	} else {
-		create_dir(output);
+		std::filesystem::create_directory(output);
 	}
 	
 	if (!openResourceFile(input)) {

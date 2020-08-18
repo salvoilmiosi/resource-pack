@@ -9,6 +9,8 @@
 #include <locale>
 #include <cstring>
 
+#include <bzlib.h>
+
 
 
 const size_t ID_MAXSIZE = 32;
@@ -16,7 +18,14 @@ const size_t ID_MAXSIZE = 32;
 struct fileData {
 	char res_id[ID_MAXSIZE];
 	char filename[FILENAME_MAX];
-	std::vector<char> data;
+	char *data = nullptr;
+	size_t size;
+	size_t uncompressed_size;
+
+	~fileData() {
+		if (data) free(data);
+		data = nullptr;
+	}
 };
 
 void trim(std::string &s) {
@@ -127,20 +136,37 @@ bool parseResource(const char *filename, std::vector<fileData> &files) {
 
 bool openResources(std::vector<fileData> &files) {
 	for (fileData &file : files) {
-		std::ifstream ifs(file.filename, std::ios::binary | std::ios::ate);
-		if (ifs.fail()) {
-			std::cerr << "Could not open file \"" << file.filename << "\"\n";
+		FILE *f_input = fopen(file.filename, "rb");
+		if (f_input == NULL) {
+			fprintf(stderr, "Can't open %s for reading\n", file.filename);
+			return -1;
+		}
+
+		// Get the file length
+		fseek(f_input, 0, SEEK_END);
+		file.uncompressed_size = ftell(f_input);
+		fseek(f_input, 0, SEEK_SET);
+
+		char *buf = (char *) malloc(file.uncompressed_size);
+
+		fread(buf, file.uncompressed_size, 1, f_input);
+		fclose(f_input);
+
+		// allocate for bz2.
+		file.size = (file.uncompressed_size + file.uncompressed_size / 100 + 1) + 600; // as per the documentation
+
+		file.data = (char *) malloc(file.size);
+
+		// compress the data
+		int status = BZ2_bzBuffToBuffCompress(file.data, (unsigned int *) &file.size, buf, file.size, 9, 1, 0);
+
+		if (status != BZ_OK) {
+			fprintf(stderr, "Failed to compress data: error %i\n", status);
 			return false;
 		}
 
-		size_t size = (size_t)ifs.tellg();
-		file.data.resize(size);
-		ifs.seekg(std::ios::beg);
-
-		if (!ifs.read(file.data.data(), size)) {
-			std::cerr << "Could not open file \"" << file.filename << "\"\n";
-			return false;
-		}
+		// and be very lazy
+		free(buf);
 	}
 
 	return true;
@@ -170,16 +196,18 @@ bool saveResources(const char *filename, std::vector<fileData> &files) {
 
 	for (fileData &file : files) {
 		ofs.write(file.res_id, ID_MAXSIZE);
-		writeInt(ofs, file.data.size());
+		
+		writeInt(ofs, file.size);
+		writeInt(ofs, file.uncompressed_size);
 		writeInt(ofs, ptr);
 
 		if (ofs.fail()) return false;
 
-		ptr += file.data.size();
+		ptr += file.size;
 	}
 
 	for (fileData &file : files) {
-		ofs.write(file.data.data(), file.data.size());
+		ofs.write(file.data, file.size);
 
 		if (ofs.fail()) return false;
 	}
