@@ -71,20 +71,19 @@ bool openResourceFile(const char *filename) {
 
 bool saveFiles(const char *output_dir) {
 	for (resource &res : resFiles) {
-		char output[FILENAME_MAX];
-		strncpy(output, output_dir, FILENAME_MAX);
-		strncat(output, res.res_id, FILENAME_MAX);
+		std::string filename = output_dir;
+		filename.append(res.res_id);
 		
 		std::vector<char> data(res.size);
 		
 		resourceIfs.seekg(res.ptr);
 		resourceIfs.read(data.data(), res.size);
 		
-		std::ofstream ofs(output, std::ios::binary);
+		std::ofstream ofs(filename, std::ios::binary);
 		ofs.write(data.data(), data.size());
 		
 		if (ofs.fail()) {
-			std::cerr << "Could not save file \"" << output << "\"\n";
+			std::cerr << "Could not save file \"" << filename << "\"\n";
 			return false;
 		}
 	}
